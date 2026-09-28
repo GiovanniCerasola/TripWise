@@ -4,21 +4,24 @@
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
 //
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var viewModel = TripViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if viewModel.hasFinishedOnboarding {
+                MainTabView(viewModel: viewModel)
+            } else if viewModel.hasStartedOnboarding {
+                NavigationStack {
+                    TwoWayChoiceView(viewModel: viewModel)
+                }
+                .preferredColorScheme(.dark)
+            } else {
+                IntroView(viewModel: viewModel)
+                    .preferredColorScheme(.dark)
+            }
         }
-        .padding()
     }
-}
-
-#Preview {
-    ContentView()
 }
