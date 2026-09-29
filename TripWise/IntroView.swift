@@ -26,17 +26,6 @@ struct IntroView: View {
                             Color.black.opacity(0.3)
                                 .edgesIgnoringSafeArea(.all)
                 VStack {
-                    Spacer()
-                    
-                    // 2. Scritta TripWise al centro
-                    Text("TripWise")
-                        .font(.system(size: 55, weight: .heavy, design: .rounded))
-                        .foregroundColor(.white)
-                        .tracking(10)
-                        .shadow(color: .black.opacity(2.0), radius: 10, x: 0, y: 5)
-                    Text("Every journey starts with a choice")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
                     
                     Spacer()
                     

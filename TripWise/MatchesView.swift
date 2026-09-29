@@ -70,7 +70,7 @@ struct MatchesView: View {
                                 visibleCount += 6
                             }
                         }) {
-                            Text("Carica altri risultati")
+                            Text("Load other result")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)

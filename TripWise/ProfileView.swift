@@ -92,6 +92,7 @@ struct ProfileView: View {
                     
                     // 3. TASTO AFFINA
                     Button(action: {
+                        viewModel.hasStartedOnboarding = true
                         viewModel.hasFinishedOnboarding = false
                     }) {
                         Text("Choose a new destination!")
