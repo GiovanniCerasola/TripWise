@@ -1,0 +1,40 @@
+# ---> Xcode / Swift .gitignore per TripWise
+
+## File di sistema macOS
+.DS_Store
+._*
+
+## Build generati da Xcode
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+## Dati utente specifici di ogni sviluppatore (LA PARTE PIÙ IMPORTANTE)
+## Questi cambiano a ogni apertura di Xcode e generano conflitti inutili
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+## CocoaPods (se un domani li usate)
+Pods/
+
+## Altro
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace

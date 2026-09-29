@@ -37,27 +37,29 @@ struct MatchesView: View {
                 // Lista grigliata responsive ordinata
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 20) {
-                        ForEach(Array(viewModel.recommendedCities.enumerated()), id: \.element.id) { index, city in
-                                            
-                                            let matchScore = max(98 - (index * 2), 75)
-                                            
-                                            // IL SEGRETO È QUI: Avvolgiamo la card in un NavigationLink
-                                            NavigationLink(destination: CityDetailView(city: city, viewModel: viewModel)) {
-                                                MatchCardView(
-                                                    city: city,
-                                                    matchPercentage: matchScore,
-                                                    accentColor: accentColor,
-                                                    isSaved: viewModel.isInWishlist(city: city),
-                                                    toggleAction: { viewModel.toggleWishlist(city: city) }
-                                                )
-                                            }
-                                            .buttonStyle(.plain) // IMPORTANTE: Evita che l'intera card diventi blu di default!
-                                            
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.bottom, 20)
-                                }
+                        // Ora iteriamo direttamente sugli ScoredCity: ognuno porta il suo score reale
+                        ForEach(viewModel.recommendedCities) { scored in
+                            
+                            // Percentuale REALE calcolata dal modello (non più 98 - index*2)
+                            let matchScore = scored.matchPercentage
+                            
+                            // Avvolgiamo la card in un NavigationLink
+                            NavigationLink(destination: CityDetailView(city: scored.city, viewModel: viewModel)) {
+                                MatchCardView(
+                                    city: scored.city,
+                                    matchPercentage: matchScore,
+                                    accentColor: accentColor,
+                                    isSaved: viewModel.isInWishlist(city: scored.city),
+                                    toggleAction: { viewModel.toggleWishlist(city: scored.city) }
+                                )
+                            }
+                            .buttonStyle(.plain) // Evita che l'intera card diventi blu di default
+                            
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+                }
             }
             .navigationTitle("Destinations")
             .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all)) // Sfondo adattivo

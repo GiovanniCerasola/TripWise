@@ -222,3 +222,25 @@ let europeanCitiesData: [Int64: City] = [
     853: City(name: "Derry", country: "United Kingdom", imageName: "derry_pic", latitude: 54.9966, longitude: -7.3086, description: "Historic walled city in Northern Ireland.", sceneryBitmask: 5),
     863: City(name: "Tenby", country: "United Kingdom", imageName: "tenby_pic", latitude: 51.6727, longitude: -4.6989, description: "Picturesque and colorful Welsh coastal village.", sceneryBitmask: 5)
 ]
+
+
+
+// MARK: - Città con punteggio di affinità
+/// Abbina una City al punteggio reale calcolato dal modello CoreML (0.0 - 1.0).
+/// Serve a portare la probabilità del modello fino alle card, così la percentuale
+/// mostrata è quella vera e non un numero finto derivato dalla posizione.
+struct ScoredCity: Identifiable, Codable, Equatable {
+    let city: City
+    let score: Double            // probabilità che piaccia (rating = 1), fra 0.0 e 1.0
+
+    var id: UUID { city.id }
+
+    /// Percentuale intera da mostrare in UI (es. 0.77 -> 77)
+    var matchPercentage: Int {
+        Int((score * 100).rounded())
+    }
+
+    static func == (lhs: ScoredCity, rhs: ScoredCity) -> Bool {
+        lhs.city == rhs.city
+    }
+}

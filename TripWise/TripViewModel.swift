@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  TripViewModel.swift
 //  TripWise
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
@@ -7,8 +7,13 @@
 import Foundation
 import SwiftUI
 import Combine
+import CoreML
 
 class TripViewModel: ObservableObject {
+    
+    // Numero di destinazioni da raccomandare: cambialo qui una volta sola.
+    private let numberOfRecommendations = 200
+    
     @Published var seasonCode: Int64 = -1
     @Published var selectedSceneries: Set<String> = []
     @Published var selectedExperiences: Set<String> = []
@@ -25,7 +30,8 @@ class TripViewModel: ObservableObject {
         }
     }
     
-    @Published var recommendedCities: [City] = [] {
+    // Ora conserva anche il punteggio reale del modello per ogni città (ScoredCity)
+    @Published var recommendedCities: [ScoredCity] = [] {
         didSet {
             saveRecommendations()
         }
@@ -46,24 +52,128 @@ class TripViewModel: ObservableObject {
         loadWishlist()
     }
     
-    // Funzione del motore di raccomandazione
+    // MARK: - Motore di raccomandazione CoreML
+    
+    /// Interroga il modello TripWiseML per ogni città candidata e restituisce
+    /// le N con la più alta probabilità di piacere all'utente (rating = 1).
     func processCoreMLRecommendation() {
-        // Qui avviene la generazione delle mete basata sul modello CoreML o sui filtri
-        // Per esempio, peschiamo le città dal dataset (CityData):
-        self.recommendedCities = europeanCitiesData.values.shuffled().prefix(6).map { $0 }
+        print(" FUNZIONE CHIAMATA")
+        do {
+            let model = try TripWiseML(configuration: MLModelConfiguration())
+            print(" MODELLO CARICATO CORRETTAMENTE")
+            
+            // Traduciamo le scelte dell'onboarding nei codici numerici che il modello si aspetta.
+            // form_f (esperienze) e form_g (paesaggi) nel dataset erano liste: qui usiamo
+            // il valore rappresentativo scelto dall'utente.
+            let experienceCode = encodeExperience()
+            let sceneryCode = encodeScenery()
+            
+            var scored: [ScoredCity] = []
+            
+            for (destinationId, city) in europeanCitiesData {
+                let input = TripWiseMLInput(
+                    destination_id: destinationId,        // la chiave del dizionario È l'id del dataset
+                    form_a_scalar: 1,                     // fascia d'età: 20-39 (valore fisso di default)
+                    form_b_scalar: budgetCode,            // budget
+                    form_c_scalar: seasonCode,            // stagione
+                    form_f_scalar: experienceCode,        // esperienza principale
+                    form_g_scalar: sceneryCode,           // paesaggio principale
+                    form_h_scalar: activityLevelCode,     // ritmo / livello di attività
+                    form_i_scalar: 1,                     // sicurezza: bilanciato (default)
+                    form_j_scalar: popularityCode,        // popolarità
+                    form_r_scalar: 0                      // "ovunque" (default)
+                )
+                
+                let prediction = try model.prediction(input: input)
+                
+                // ratingProbability è [Int64: Double]. La probabilità della classe "1" (piace).
+                let score = prediction.ratingProbability[1] ?? 0.0
+                scored.append(ScoredCity(city: city, score: score))
+                
+                // 🔍 DEBUG: stampa l'output completo del modello per ogni città.
+                print("🏙️ \(city.name) [id \(destinationId)] → rating: \(prediction.rating) | prob: \(prediction.ratingProbability)")
+            }
+            
+            // Ordiniamo per probabilità decrescente e prendiamo le prime N
+            let topScored = scored
+                .sorted { $0.score > $1.score }
+                .prefix(numberOfRecommendations)
+            
+            // 🔍 DEBUG: riepilogo finale delle città scelte, in ordine, con lo score reale
+            print("\n✅ TOP \(numberOfRecommendations) RACCOMANDAZIONI:")
+            for (i, item) in topScored.enumerated() {
+                print("   \(i + 1). \(item.city.name) — affinità \(item.matchPercentage)%")
+            }
+            print("")
+            
+            self.recommendedCities = Array(topScored)
+            
+        } catch {
+            // Se il modello non è disponibile, fallback su una selezione casuale (score 0)
+            print("❌ ERRORE CoreML: \(error) — uso selezione casuale come fallback")
+            self.recommendedCities = europeanCitiesData.values
+                .shuffled()
+                .prefix(numberOfRecommendations)
+                .map { ScoredCity(city: $0, score: 0.0) }
+        }
+        
         self.hasFinishedOnboarding = true
     }
     
-    // 🧹 FUNZIONE DI RESET COMPLETO (chiamata dal tasto nel Profilo)
+    // MARK: - Traduzione scelte utente → codici del modello
+    
+    /// Converte l'esperienza scelta nel codice form_f del dataset Stravl.
+    /// 0=Beach, 1=Adventure, 2=Nature, 3=Culture, 4=Nightlife, 5=History, 6=Shopping, 7=Cuisine
+    private func encodeExperience() -> Int64 {
+        let map: [String: Int64] = [
+            "Beach": 0,
+            "Adventure": 1,
+            "Nature": 2,
+            "Culture": 3,
+            "Nightlife": 4,
+            "History": 5,
+            "Shopping": 6,
+            "Food": 7
+        ]
+        // Prendiamo la prima esperienza selezionata che troviamo nella mappa
+        for exp in selectedExperiences {
+            if let code = map[exp] { return code }
+        }
+        return 2 // default: Nature
+    }
+    
+    /// Converte il paesaggio scelto nel codice form_g del dataset Stravl.
+    /// 0=Urban, 1=Rural, 2=Sea, 3=Mountain, 4=Lake, 5=Desert, 6=Plains, 7=Jungle
+    private func encodeScenery() -> Int64 {
+        let map: [String: Int64] = [
+            "City": 0,
+            "Countryside": 1,
+            "Sea": 2,
+            "Mountain": 3,
+            "Lake": 4,
+            "Desert": 5
+        ]
+        for scenery in selectedSceneries {
+            if let code = map[scenery] { return code }
+        }
+        return 0 // default: Urban
+    }
+    
+    // MARK: - Reset
+    
+    /// Reset completo: azzera onboarding, scelte, raccomandazioni e wishlist.
     func resetOnboardingAndResults() {
         self.hasFinishedOnboarding = false
         self.hasStartedOnboarding = false
         self.seasonCode = -1
         self.selectedSceneries.removeAll()
         self.selectedExperiences.removeAll()
+        self.budgetCode = 1
+        self.activityLevelCode = 1
+        self.popularityCode = 1
         self.recommendedCities.removeAll()
         
-        // Puliamo anche la memoria persistente delle raccomandazioni
+        // Puliamo la memoria persistente delle raccomandazioni
         UserDefaults.standard.removeObject(forKey: "savedRecommendations")
         UserDefaults.standard.set(false, forKey: "hasFinishedOnboarding")
     }
@@ -77,7 +187,7 @@ class TripViewModel: ObservableObject {
     
     private func loadRecommendations() {
         if let data = UserDefaults.standard.data(forKey: "savedRecommendations"),
-           let decoded = try? JSONDecoder().decode([City].self, from: data) {
+           let decoded = try? JSONDecoder().decode([ScoredCity].self, from: data) {
             self.recommendedCities = decoded
         }
     }
