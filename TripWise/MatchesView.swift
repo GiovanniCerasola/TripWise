@@ -2,13 +2,15 @@
 //  MatchesView.swift
 //  TripWise
 //
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
+
 import SwiftUI
 
 struct MatchesView: View {
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
+    
+    // Variabile di stato per controllare quanti risultati mostrare
+    @State private var visibleCount: Int = 6
     
     // Griglia adattiva: si stringe a 1 colonna in verticale e si apre a più colonne in orizzontale
     let columns = [
@@ -37,10 +39,10 @@ struct MatchesView: View {
                 // Lista grigliata responsive ordinata
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 20) {
-                        // Ora iteriamo direttamente sugli ScoredCity: ognuno porta il suo score reale
-                        ForEach(viewModel.recommendedCities) { scored in
+                        // Iteriamo solo sui primi 'visibleCount' elementi
+                        ForEach(viewModel.recommendedCities.prefix(visibleCount)) { scored in
                             
-                            // Percentuale REALE calcolata dal modello (non più 98 - index*2)
+                            // Percentuale REALE calcolata dal modello
                             let matchScore = scored.matchPercentage
                             
                             // Avvolgiamo la card in un NavigationLink
@@ -59,6 +61,27 @@ struct MatchesView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 20)
+                    
+                    // Pulsante "Carica altri risultati" mostrato solo se ci sono ancora città da caricare
+                    if visibleCount < viewModel.recommendedCities.count {
+                        Button(action: {
+                            // Aggiunge altri 6 risultati con un'animazione fluida
+                            withAnimation(.easeInOut) {
+                                visibleCount += 6
+                            }
+                        }) {
+                            Text("Carica altri risultati")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(accentColor)
+                                .cornerRadius(15)
+                                .shadow(color: accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 30)
+                    }
                 }
             }
             .navigationTitle("Destinations")
