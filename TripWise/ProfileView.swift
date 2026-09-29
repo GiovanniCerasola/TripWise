@@ -10,30 +10,64 @@ struct ProfileView: View {
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
     
+    // Calcola l'archetipo una volta sola, combinando TUTTE le scelte dell'utente.
+    private var archetype: Archetype {
+        ArchetypeEngine.compute(
+            experiences: viewModel.selectedExperiences,
+            sceneries: viewModel.selectedSceneries,
+            seasonCode: viewModel.seasonCode,
+            budgetCode: viewModel.budgetCode,
+            activityLevelCode: viewModel.activityLevelCode,
+            popularityCode: viewModel.popularityCode
+        )
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
                     
-                    // 1. HEADER (Icona + Archetipo dinamico)
-                    HStack(spacing: 15) {
-                        Image(systemName: "building.2.crop.circle")
-                            .font(.system(size: 50))
-                            .foregroundColor(accentColor)
-                            .background(Color.primary.opacity(0.1))
-                            .clipShape(Circle())
+                    // 1. BLOCCO ARCHETIPO UNICO (icona + titolo + descrizione insieme)
+                    VStack(alignment: .leading, spacing: 16) {
                         
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(getArchetypeTitle())
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.primary)
-                            Text("Your Archetype")
+                        // Riga superiore: icona + titolo
+                        HStack(spacing: 15) {
+                            Image(systemName: "building.2.crop.circle")
+                                .font(.system(size: 50))
+                                .foregroundColor(accentColor)
+                                .background(Color.primary.opacity(0.1))
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(archetype.title)
+                                    .font(.title2)
+                                    .bold()
+                                    .foregroundColor(.primary)
+                                Text("Your Archetype")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                        }
+                        
+                        Divider()
+                        
+                        // Parte inferiore: sottotitolo + descrizione
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(archetype.subtitle)
+                                .font(.headline)
+                                .foregroundColor(accentColor)
+                            Text(archetype.description)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
+                                .lineSpacing(4)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        Spacer()
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(18)
                     .padding(.horizontal)
                     .padding(.top, 10)
                     
@@ -80,43 +114,36 @@ struct ProfileView: View {
         }
     }
     
-    // Calcola i 6 valori del grafico (0.0 - 1.0) in base alle esperienze e ai gusti salvati nel ViewModel
+    // Calcola i 6 valori del grafico (0.0 - 1.0). Stringhe INGLESI coerenti coi dati salvati.
     private func computeUserPreferencesData() -> [Double] {
         let exp = viewModel.selectedExperiences
         let sceneries = viewModel.selectedSceneries
         
-        // Asse 0: Relax (Spiaggia, Natura, Budget lusso/medio)
         var relaxScore = 0.3
-        if exp.contains("Spiaggia") { relaxScore += 0.4 }
-        if exp.contains("Natura") { relaxScore += 0.3 }
-        if sceneries.contains("Mare") || sceneries.contains("Lago") { relaxScore += 0.2 }
+        if exp.contains("Beach") { relaxScore += 0.4 }
+        if exp.contains("Nature") { relaxScore += 0.3 }
+        if sceneries.contains("Sea") || sceneries.contains("Lake") { relaxScore += 0.2 }
         
-        // Asse 1: Cultura (Cultura, Storia)
         var cultureScore = 0.3
-        if exp.contains("Cultura") { cultureScore += 0.4 }
-        if exp.contains("History") || exp.contains("Storia") { cultureScore += 0.4 }
-        if sceneries.contains("Città") { cultureScore += 0.2 }
+        if exp.contains("Culture") { cultureScore += 0.4 }
+        if exp.contains("History") { cultureScore += 0.4 }
+        if sceneries.contains("City") { cultureScore += 0.2 }
         
-        // Asse 2: Natura (Natura, Montagna, Campagna)
         var natureScore = 0.3
-        if exp.contains("Natura") { natureScore += 0.4 }
-        if sceneries.contains("Montagna") || sceneries.contains("Campagna") || sceneries.contains("Deserto") { natureScore += 0.4 }
+        if exp.contains("Nature") { natureScore += 0.4 }
+        if sceneries.contains("Mountain") || sceneries.contains("Countryside") || sceneries.contains("Desert") { natureScore += 0.4 }
         
-        // Asse 3: Cibo (Cibo)
         var foodScore = 0.3
-        if exp.contains("Cibo") || exp.contains("Gastronomia") { foodScore += 0.6 }
+        if exp.contains("Food") { foodScore += 0.6 }
         
-        // Asse 4: Vita notturna (Vita Notturna)
         var nightlifeScore = 0.2
-        if exp.contains("Vita Notturna") { nightlifeScore += 0.7 }
+        if exp.contains("Nightlife") { nightlifeScore += 0.7 }
         
-        // Asse 5: Avventura (Avventura, Ritmo intenso)
         var adventureScore = 0.3
-        if exp.contains("Avventura") { adventureScore += 0.4 }
+        if exp.contains("Adventure") { adventureScore += 0.4 }
         if viewModel.activityLevelCode == 2 { adventureScore += 0.3 }
-        if sceneries.contains("Montagna") { adventureScore += 0.2 }
+        if sceneries.contains("Mountain") { adventureScore += 0.2 }
         
-        // Normalizziamo i valori per assicurarci che siano tra 0.1 e 1.0 per un bel disegno geometrico
         return [
             min(max(relaxScore, 0.2), 1.0),
             min(max(cultureScore, 0.2), 1.0),
@@ -127,19 +154,9 @@ struct ProfileView: View {
         ]
     }
     
-    // Restituisce un titolo dinamico per l'archetipo in base alle scelte
-    private func getArchetypeTitle() -> String {
-        if viewModel.selectedExperiences.contains("Avventura") { return "Adrenaline Addict" }
-        if viewModel.selectedExperiences.contains("Cultura") || viewModel.selectedExperiences.contains("Storia") { return "Culture Enthusiast" }
-        if viewModel.selectedExperiences.contains("Spiaggia") { return "Relaxer" }
-        if viewModel.selectedSceneries.contains("Città") { return "Urban Explorer" }
-        return "Generalist"
-    }
-    
-    
     // MARK: - RADAR CHART (GRAFICO CUSTOM ADATTIVO)
     struct RadarChart: View {
-        var data: [Double] // Array di 6 valori tra 0.0 e 1.0
+        var data: [Double]
         let labels = ["Relax", "Culture", "Nature", "Food", "Nightlife", "Adventure"]
         let accentColor: Color
         
@@ -149,13 +166,11 @@ struct ProfileView: View {
                 let radius = min(geometry.size.width, geometry.size.height) / 2 - 25
                 
                 ZStack {
-                    // 1. Griglia (3 esagoni concentrici)
                     ForEach(1...3, id: \.self) { step in
                         PolygonShape(sides: 6, scale: CGFloat(step) / 3.0)
                             .stroke(Color.primary.opacity(0.15), lineWidth: 1)
                     }
                     
-                    // 2. Assi dal centro ai vertici
                     ForEach(0..<6, id: \.self) { i in
                         Path { path in
                             path.move(to: center)
@@ -167,14 +182,12 @@ struct ProfileView: View {
                         .stroke(Color.primary.opacity(0.15), lineWidth: 1)
                     }
                     
-                    // 3. Area colorata basata sui dati reali dell'utente
                     DataPolygonShape(data: data)
                         .fill(accentColor.opacity(0.4))
                     
                     DataPolygonShape(data: data)
                         .stroke(accentColor, lineWidth: 2)
                     
-                    // 4. Etichette di testo sui vertici
                     ForEach(0..<6, id: \.self) { i in
                         let angle = CGFloat(i) * (2.0 * .pi / 6.0) - .pi / 2.0
                         let labelRadius = radius + 22
@@ -191,7 +204,6 @@ struct ProfileView: View {
         }
     }
     
-    // Forma esagonale di sfondo
     struct PolygonShape: Shape {
         var sides: Int
         var scale: CGFloat
@@ -213,7 +225,6 @@ struct ProfileView: View {
         }
     }
     
-    // Forma dinamica basata sui dati dell'utente
     struct DataPolygonShape: Shape {
         var data: [Double]
         
@@ -236,7 +247,7 @@ struct ProfileView: View {
         }
     }
 }
-    #Preview {
-        ProfileView(viewModel: TripViewModel())
-    }
 
+#Preview {
+    ProfileView(viewModel: TripViewModel())
+}
