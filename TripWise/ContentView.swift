@@ -34,10 +34,10 @@ struct ContentView: View {
                         NavigationStack {
                             TwoWayChoiceView(viewModel: viewModel)
                         }
-                        .preferredColorScheme(.dark)
+            
                     } else {
                         IntroView(viewModel: viewModel)
-                            .preferredColorScheme(.dark)
+                            
                     }
                 }
             }

@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  TwoWayChoiceView.swift
 //  TripWise
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
@@ -32,14 +32,14 @@ struct TwoWayChoiceView: View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 0) {
                 
-                // Intestazione
+                // Intestazione (colori adattivi chiaro/scuro)
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Choose the season")
                         .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     Text("Pick the season you would like to be travelling in")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
                 .padding(.top, 20)
@@ -84,15 +84,24 @@ struct TwoWayChoiceView: View {
                 
                 OnboardingDots(currentStep: 0, totalSteps: 4)
                     .padding(8)
-                    .background(Color.black.opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
+                    .background(Color(UIColor.systemBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
             }
             .padding(.bottom, 20)
             .background(
-                LinearGradient(colors: [.clear, .black.opacity(0.95), .black], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
+                // Sfumatura adattiva: nera in dark mode, bianca in light mode
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        Color(UIColor.systemBackground).opacity(0.95),
+                        Color(UIColor.systemBackground)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
             )
         }
-        .background(Color.black.ignoresSafeArea())
+        .background(Color(UIColor.systemBackground).ignoresSafeArea())
         .navigationBarHidden(true)
     }
 }
@@ -114,6 +123,8 @@ struct SeasonCardRow: View {
                     .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                 
+                // Sfumatura scura sulla foto: resta nera in entrambi i temi
+                // così il testo bianco è sempre leggibile
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color.clear,
@@ -125,7 +136,7 @@ struct SeasonCardRow: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 22))
                 
-                // Contenuto testuale
+                // Contenuto testuale (bianco perché sta sopra la foto)
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 8) {
@@ -161,8 +172,9 @@ struct SeasonCardRow: View {
                 .padding(.vertical, 14)
             }
             .overlay(
+                // Bordo adattivo: visibile sia su sfondo chiaro che scuro
                 RoundedRectangle(cornerRadius: 22)
-                    .stroke(isSelected ? accentColor : Color.white.opacity(0.1), lineWidth: isSelected ? 3 : 1)
+                    .stroke(isSelected ? accentColor : Color.primary.opacity(0.1), lineWidth: isSelected ? 3 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -170,8 +182,16 @@ struct SeasonCardRow: View {
     }
 }
 
-#Preview {
+#Preview("Dark") {
     NavigationStack {
         TwoWayChoiceView(viewModel: TripViewModel())
     }
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Light") {
+    NavigationStack {
+        TwoWayChoiceView(viewModel: TripViewModel())
+    }
+    .preferredColorScheme(.light)
 }

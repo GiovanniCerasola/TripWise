@@ -13,27 +13,32 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             
+            // 1. Destinazioni consigliate
             MatchesView(viewModel: viewModel)
                 .tabItem {
                     Image(systemName: "globe.europe.africa.fill")
                     Text("Destinations")
                 }
             
-           
+            // 2. Wishlist
             WishlistView(viewModel: viewModel)
                 .tabItem {
                     Image(systemName: "heart")
                     Text("Wishlist")
                 }
             
-        
-                        ProfileView(viewModel: viewModel)
-                            .tabItem {
-                                Image(systemName: "person.crop.circle")
-                                Text("Profile")
-                            }
+            // 3. Profilo viaggiatore
+            ProfileView(viewModel: viewModel)
+                .tabItem {
+                    Image(systemName: "person.crop.circle")
+                    Text("Profile")
+                }
         }
-        .accentColor(accentColor)
-        .preferredColorScheme(.dark)
+        .tint(accentColor)
+
     }
+}
+
+#Preview {
+    MainTabView(viewModel: TripViewModel())
 }
