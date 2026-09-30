@@ -31,7 +31,7 @@ struct IntroView: View {
                     
                     // 3. Bottone Liquid Glass
                     NavigationLink(destination: TwoWayChoiceView(viewModel: viewModel)) {
-                        Text("Begin")
+                        Text("Let's start")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.white)

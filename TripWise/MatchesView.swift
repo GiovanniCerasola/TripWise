@@ -28,7 +28,7 @@ struct MatchesView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(accentColor)
                     Spacer()
-                    Text("\(viewModel.recommendedCities.count) destinations")
+                    Text("\(viewModel.visibleRecommendations.count) destinations")
                         .font(.caption)
                         .foregroundColor(.secondary) // Adattivo
                 }
@@ -40,13 +40,15 @@ struct MatchesView: View {
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 20) {
                         // Iteriamo solo sui primi 'visibleCount' elementi
-                        ForEach(viewModel.recommendedCities.prefix(visibleCount)) { scored in
+                        // Mostriamo solo le città NON ancora visitate
+                        ForEach(viewModel.visibleRecommendations.prefix(visibleCount)) { scored in
                             
                             // Percentuale REALE calcolata dal modello
                             let matchScore = scored.matchPercentage
                             
-                            // Avvolgiamo la card in un NavigationLink
-                            NavigationLink(destination: CityDetailView(city: scored.city, viewModel: viewModel)) {
+                            // NavigationLink basato sul valore: se la città viene segnata come visitata
+                            // e sparisce dalla lista, la schermata di dettaglio resta aperta.
+                            NavigationLink(value: scored.city) {
                                 MatchCardView(
                                     city: scored.city,
                                     matchPercentage: matchScore,
@@ -62,29 +64,32 @@ struct MatchesView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 20)
                     
-                    // Pulsante "Carica altri risultati" mostrato solo se ci sono ancora città da caricare
-                    if visibleCount < viewModel.recommendedCities.count {
+                    // Link testuale "Load more results": piccolo e sottolineato
+                    if visibleCount < viewModel.visibleRecommendations.count {
                         Button(action: {
                             // Aggiunge altri 6 risultati con un'animazione fluida
                             withAnimation(.easeInOut) {
                                 visibleCount += 6
                             }
                         }) {
-                            Text("Load other result")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(accentColor)
-                                .cornerRadius(15)
-                                .shadow(color: accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                            Text("Load more results")
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .underline()
+                                .foregroundColor(accentColor)
+                                .padding(.vertical, 8)
+                                .contentShape(Rectangle())
                         }
-                        .padding(.horizontal)
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity)
                         .padding(.bottom, 30)
                     }
                 }
             }
             .navigationTitle("Destinations")
+            .navigationDestination(for: City.self) { city in
+                CityDetailView(city: city, viewModel: viewModel)
+            }
             .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all)) // Sfondo adattivo
         }
     }
@@ -158,4 +163,12 @@ struct MatchCardView: View {
 
 #Preview {
     MatchesView(viewModel: TripViewModel())
+}
+
+// MARK: - City Hashable
+// Necessario per NavigationLink(value:). L'hash usa il nome, coerente con l'uguaglianza fra città.
+extension City: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
 }

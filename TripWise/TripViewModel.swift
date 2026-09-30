@@ -42,6 +42,19 @@ class TripViewModel: ObservableObject {
             saveWishlist()
         }
     }
+    
+    // Città già visitate dall'utente (salvate per nome, che è univoco nel catalogo).
+    // Non vengono mostrate nel tab Destinations.
+    @Published var visitedCityNames: Set<String> = [] {
+        didSet {
+            saveVisitedCities()
+        }
+    }
+    
+    /// Raccomandazioni da mostrare nel tab Destinations: esclude le città già visitate.
+    var visibleRecommendations: [ScoredCity] {
+        recommendedCities.filter { !visitedCityNames.contains($0.city.name) }
+    }
 
     init() {
         // Leggiamo se l'onboarding era già stato completato
@@ -50,6 +63,7 @@ class TripViewModel: ObservableObject {
         // Carichiamo le raccomandazioni salvate in precedenza
         loadRecommendations()
         loadWishlist()
+        loadVisitedCities()
     }
     
     // MARK: - Motore di raccomandazione CoreML
@@ -172,6 +186,7 @@ class TripViewModel: ObservableObject {
         self.activityLevelCode = 1
         self.popularityCode = 1
         self.recommendedCities.removeAll()
+        // Le città visitate NON vengono azzerate: sono un dato dell'utente, non dell'onboarding.
         
         // Puliamo la memoria persistente delle raccomandazioni
         UserDefaults.standard.removeObject(forKey: "savedRecommendations")
@@ -201,14 +216,25 @@ class TripViewModel: ObservableObject {
     private func loadWishlist() {
         if let data = UserDefaults.standard.data(forKey: "savedWishlist"),
            let decoded = try? JSONDecoder().decode([City].self, from: data) {
-            // Rimuove eventuali duplicati salvati prima della correzione
+            // Rimuove eventuali duplicati salvati in passato (confronto per nome)
             var seen = Set<String>()
-            self.wishlist = decoded.filter { seen.insert($0.id).inserted }
+            self.wishlist = decoded.filter { seen.insert($0.name).inserted }
         }
     }
     
+    private func saveVisitedCities() {
+        UserDefaults.standard.set(Array(visitedCityNames), forKey: "savedVisitedCities")
+    }
+    
+    private func loadVisitedCities() {
+        if let names = UserDefaults.standard.stringArray(forKey: "savedVisitedCities") {
+            self.visitedCityNames = Set(names)
+        }
+    }
+    
+    // Wishlist confrontata per NOME: resta corretta anche se gli id cambiano tra un avvio e l'altro
     func toggleWishlist(city: City) {
-        if let index = wishlist.firstIndex(where: { $0.id == city.id }) {
+        if let index = wishlist.firstIndex(where: { $0.name == city.name }) {
             wishlist.remove(at: index)
         } else {
             wishlist.append(city)
@@ -216,6 +242,24 @@ class TripViewModel: ObservableObject {
     }
     
     func isInWishlist(city: City) -> Bool {
-        return wishlist.contains(where: { $0.id == city.id })
+        return wishlist.contains(where: { $0.name == city.name })
+    }
+    
+    // MARK: - Città già visitate
+    
+    func isVisited(city: City) -> Bool {
+        visitedCityNames.contains(city.name)
+    }
+    
+    func setVisited(city: City, _ visited: Bool) {
+        if visited {
+            visitedCityNames.insert(city.name)
+        } else {
+            visitedCityNames.remove(city.name)
+        }
+    }
+    
+    func toggleVisited(city: City) {
+        setVisited(city: city, !isVisited(city: city))
     }
 }

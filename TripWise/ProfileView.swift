@@ -90,7 +90,41 @@ struct ProfileView: View {
                     .cornerRadius(18)
                     .padding(.horizontal)
                     
-                    // 3. TASTO AFFINA
+                    // 3. CITTÀ GIÀ VISITATE (porta alla schermata di gestione)
+                    NavigationLink(destination: VisitedCitiesView(viewModel: viewModel)) {
+                        HStack(spacing: 15) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(accentColor)
+                                .frame(width: 44, height: 44)
+                                .background(accentColor.opacity(0.15))
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Visited cities")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text(visitedSubtitle)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(18)
+                        .contentShape(RoundedRectangle(cornerRadius: 18))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                    
+                    // 4. TASTO AFFINA
                     Button(action: {
                         viewModel.hasStartedOnboarding = true
                         viewModel.hasFinishedOnboarding = false
@@ -112,6 +146,16 @@ struct ProfileView: View {
             }
             .navigationTitle("Your profile")
             .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all))
+        }
+    }
+    
+    // Sottotitolo della riga "Visited cities"
+    private var visitedSubtitle: String {
+        let count = viewModel.visitedCityNames.count
+        switch count {
+        case 0: return "Mark the places you've already been"
+        case 1: return "1 city visited"
+        default: return "\(count) cities visited"
         }
     }
     

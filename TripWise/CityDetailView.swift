@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  CityDetailView.swift
 //  TripWise
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
@@ -50,6 +50,9 @@ struct CityDetailView: View {
                     .padding()
                     .offset(y: 20) // Lo fa sbordare leggermente dall'immagine
                 }
+                // Porta la copertina (e quindi il cuore) SOPRA il contenuto testuale:
+                // senza questo, lo sfondo del blocco sotto copriva la parte bassa del cuore
+                .zIndex(1)
                 
                 // 2. Contenuto Testuale (ora perfettamente allineato)
                 VStack(alignment: .leading, spacing: 15) {
@@ -80,6 +83,35 @@ struct CityDetailView: View {
                         .foregroundColor(.secondary)
                         .lineSpacing(6)
                     
+                    Divider()
+                        .padding(.vertical, 5)
+                    
+                    // TOGGLE "GIÀ VISITATA": se attivo, la città sparisce dal tab Destinations
+                    Toggle(isOn: Binding(
+                        get: { viewModel.isVisited(city: city) },
+                        set: { newValue in
+                            withAnimation { viewModel.setVisited(city: city, newValue) }
+                        }
+                    )) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(accentColor)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Already visited")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text("It won't appear in your destinations")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .tint(accentColor)
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(15)
+
                 }
                 .padding(20)
                 .background(Color(UIColor.systemBackground))
