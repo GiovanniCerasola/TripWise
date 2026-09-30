@@ -201,7 +201,9 @@ class TripViewModel: ObservableObject {
     private func loadWishlist() {
         if let data = UserDefaults.standard.data(forKey: "savedWishlist"),
            let decoded = try? JSONDecoder().decode([City].self, from: data) {
-            self.wishlist = decoded
+            // Rimuove eventuali duplicati salvati prima della correzione
+            var seen = Set<String>()
+            self.wishlist = decoded.filter { seen.insert($0.id).inserted }
         }
     }
     

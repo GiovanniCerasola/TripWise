@@ -7,7 +7,7 @@
 import Foundation
 
 struct City: Identifiable, Equatable, Codable {
-    var id = UUID()
+    var id: String { "\(name)-\(country)" }
     let name: String
     let country: String
     let imageName: String
@@ -233,7 +233,7 @@ struct ScoredCity: Identifiable, Codable, Equatable {
     let city: City
     let score: Double            // probabilità che piaccia (rating = 1), fra 0.0 e 1.0
 
-    var id: UUID { city.id }
+    var id: String { city.id }
 
     /// Percentuale intera da mostrare in UI (es. 0.77 -> 77)
     var matchPercentage: Int {
