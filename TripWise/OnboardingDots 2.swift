@@ -7,7 +7,7 @@
 import SwiftUI
 
 
-struct OnboardingDots: View {
+struct OnboardingDots2: View {
     let currentStep: Int
     let totalSteps: Int
     private let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)

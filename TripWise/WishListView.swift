@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  WishListView.swift
 //  TripWise
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
@@ -53,7 +53,7 @@ struct WishlistView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Picker("Visualizzazione", selection: $viewMode) {
+                Picker("View mode", selection: $viewMode) {
                     Text("List").tag(0)
                     Text("Map").tag(1)
                 }
@@ -191,7 +191,7 @@ struct MapDetailCard: View {
                         .foregroundColor(accentColor)
                         .padding(.top, 2)
                 } else {
-                    Label("Rilevamento GPS in corso...", systemImage: "location.slash.fill")
+                    Label("Locating you...", systemImage: "location.slash.fill")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .padding(.top, 2)
@@ -221,9 +221,9 @@ struct MapDetailCard: View {
         let distanceInKm = distanceInMeters / 1000.0
         
         if distanceInKm < 1 {
-            return "A meno di 1 km da te"
+            return "Less than 1 km away"
         } else {
-            return String(format: "A %.0f km da te", distanceInKm)
+            return String(format: "%.0f km away", distanceInKm)
         }
     }
 }
@@ -263,7 +263,7 @@ struct WishlistHorizontalCard: View {
                             .clipShape(Capsule())
                     }
                     
-                    Text("Da visitare!")
+                    Text("To visit!")
                         .font(.caption2)
                         .bold()
                         .padding(.horizontal, 8)
@@ -303,9 +303,9 @@ struct WishlistHorizontalCard: View {
         let distanceInKm = distanceInMeters / 1000.0
         
         if distanceInKm < 1 {
-            return "Meno di 1 km"
+            return "Less than 1 km"
         } else {
-            return String(format: "%.0f km da te", distanceInKm)
+            return String(format: "%.0f km away", distanceInKm)
         }
     }
 }

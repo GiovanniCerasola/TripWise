@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  OnboardingDots.swift
 //  TripWise
 //
 //  Created by Samuel Antonio Mento on 22/09/2026.
@@ -7,8 +7,9 @@
 import SwiftUI
 
 
-    let currentStep: Int = 0
-    let totalSteps: Int = 0
+struct OnboardingDots: View {
+    let currentStep: Int
+    let totalSteps: Int
     private let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
 
     var body: some View {
@@ -21,7 +22,7 @@ import SwiftUI
         }
         .animation(.easeInOut(duration: 0.2), value: currentStep)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Avanzamento")
-        .accessibilityValue("Passaggio \(currentStep + 1) di \(totalSteps)")
+        .accessibilityLabel("Progress")
+        .accessibilityValue("Step \(currentStep + 1) of \(totalSteps)")
     }
-
+}
