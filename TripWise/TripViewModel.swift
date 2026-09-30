@@ -39,7 +39,17 @@ class TripViewModel: ObservableObject {
     
     @Published var wishlist: [City] = [] {
         didSet {
-            saveWishlist()
+            // Protezione globale contro i duplicati (confronto per nome):
+            // Impedisce l'inserimento della stessa destinazione più di una volta
+            // indipendentemente da quale vista modifichi la wishlist.
+            var seen = Set<String>()
+            let uniqueWishlist = wishlist.filter { seen.insert($0.name).inserted }
+            
+            if uniqueWishlist.count != wishlist.count {
+                wishlist = uniqueWishlist
+            } else {
+                saveWishlist()
+            }
         }
     }
     
@@ -77,8 +87,6 @@ class TripViewModel: ObservableObject {
             print(" MODELLO CARICATO CORRETTAMENTE")
             
             // Traduciamo le scelte dell'onboarding nei codici numerici che il modello si aspetta.
-            // form_f (esperienze) e form_g (paesaggi) nel dataset erano liste: qui usiamo
-            // il valore rappresentativo scelto dall'utente.
             let experienceCode = encodeExperience()
             let sceneryCode = encodeScenery()
             
@@ -149,7 +157,6 @@ class TripViewModel: ObservableObject {
             "Shopping": 6,
             "Food": 7
         ]
-        // Prendiamo la prima esperienza selezionata che troviamo nella mappa
         for exp in selectedExperiences {
             if let code = map[exp] { return code }
         }
@@ -186,10 +193,11 @@ class TripViewModel: ObservableObject {
         self.activityLevelCode = 1
         self.popularityCode = 1
         self.recommendedCities.removeAll()
-        // Le città visitate NON vengono azzerate: sono un dato dell'utente, non dell'onboarding.
+        self.wishlist.removeAll()
         
-        // Puliamo la memoria persistente delle raccomandazioni
+        // Puliamo la memoria persistente delle raccomandazioni e wishlist
         UserDefaults.standard.removeObject(forKey: "savedRecommendations")
+        UserDefaults.standard.removeObject(forKey: "savedWishlist")
         UserDefaults.standard.set(false, forKey: "hasFinishedOnboarding")
     }
     
@@ -232,12 +240,25 @@ class TripViewModel: ObservableObject {
         }
     }
     
-    // Wishlist confrontata per NOME: resta corretta anche se gli id cambiano tra un avvio e l'altro
+    // MARK: - Gestione Wishlist Sicura
+    
+    /// Aggiunge una città alla wishlist solo se non è già presente
+    func addToWishlist(city: City) {
+        guard !isInWishlist(city: city) else { return }
+        wishlist.append(city)
+    }
+    
+    /// Rimuove una città dalla wishlist
+    func removeFromWishlist(city: City) {
+        wishlist.removeAll(where: { $0.name == city.name })
+    }
+    
+    /// Alterna lo stato nella wishlist
     func toggleWishlist(city: City) {
-        if let index = wishlist.firstIndex(where: { $0.name == city.name }) {
-            wishlist.remove(at: index)
+        if isInWishlist(city: city) {
+            removeFromWishlist(city: city)
         } else {
-            wishlist.append(city)
+            addToWishlist(city: city)
         }
     }
     
