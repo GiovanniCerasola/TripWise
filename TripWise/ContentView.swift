@@ -19,7 +19,7 @@ struct ContentView: View {
                 SplashScreenView()
                     .onAppear {
                         // Disattiva la splash screen dopo 2 secondi
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 showSplash = false
                             }
