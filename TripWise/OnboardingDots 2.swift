@@ -1,11 +1,4 @@
-//
-//  ContentView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
-
 
 struct OnboardingDots2: View {
     let currentStep: Int

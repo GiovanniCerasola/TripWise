@@ -1,21 +1,13 @@
-//
-//  ContentView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
 
 struct EnvironmentChoiceView: View {
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
-    
-    // Per gestire il ritorno alla schermata precedente
+
     @Environment(\.dismiss) var dismiss
-    
-    // Variabile di stato per controllare la comparsa del messaggio di errore
+
     @State private var showMaxSelectionError: Bool = false
-    
+
     let environments = [
         ("City", "urban_pic"),
         ("Countryside", "rural_pic"),
@@ -24,19 +16,17 @@ struct EnvironmentChoiceView: View {
         ("Lake", "lake_pic"),
         ("Desert", "desert_pic")
     ]
-    
-    // Griglia a 2 colonne
+
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
-    
+
     var body: some View {
         ZStack(alignment: .top) {
-            
+
             VStack(alignment: .leading, spacing: 10) {
-                
-                // BARRA SUPERIORE CON TASTO INDIETRO CIRCOLARE
+
                 HStack {
                     Button(action: {
                         dismiss()
@@ -45,7 +35,7 @@ struct EnvironmentChoiceView: View {
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.primary)
                             .frame(width: 40, height: 40)
-                            .background(Color(UIColor.secondarySystemBackground)) // Adattivo chiaro/scuro
+                            .background(Color(UIColor.secondarySystemBackground))
                             .clipShape(Circle())
                             .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 2)
                     }
@@ -53,7 +43,7 @@ struct EnvironmentChoiceView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
-                
+
                 VStack(alignment: .leading, spacing: 5) {
                     Text("What sceneries are you attracted to?")
                         .font(.system(size: 32, weight: .bold))
@@ -64,7 +54,7 @@ struct EnvironmentChoiceView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 5)
-                
+
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 15) {
                         ForEach(environments, id: \.0) { env in
@@ -74,18 +64,15 @@ struct EnvironmentChoiceView: View {
                                 isSelected: viewModel.selectedSceneries.contains(env.0),
                                 accentColor: accentColor
                             ) {
-                                // LOGICA DI SELEZIONE E CONTROLLO LIMITE
                                 if viewModel.selectedSceneries.contains(env.0) {
                                     viewModel.selectedSceneries.remove(env.0)
                                 } else {
                                     if viewModel.selectedSceneries.count < 3 {
                                         viewModel.selectedSceneries.insert(env.0)
                                     } else {
-                                        // LIMITE RAGGIUNTO: Mostriamo l'errore con un'animazione
                                         withAnimation(.spring()) {
                                             showMaxSelectionError = true
                                         }
-                                        // Nascondiamo l'errore automaticamente dopo 2 secondi
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                             withAnimation(.spring()) {
                                                 showMaxSelectionError = false
@@ -99,9 +86,9 @@ struct EnvironmentChoiceView: View {
                     .padding(.horizontal)
                     .padding(.top, 10)
                 }
-                
+
                 Spacer()
-                
+
                 VStack(spacing: 12) {
                     NavigationLink(destination: SwipeView(viewModel: viewModel)) {
                         Text("Next")
@@ -114,7 +101,7 @@ struct EnvironmentChoiceView: View {
                     }
                     .disabled(viewModel.selectedSceneries.isEmpty)
                     .padding(.horizontal)
-                    
+
                     OnboardingDots(currentStep: 1, totalSteps: 4)
                         .padding(8)
                         .background(Color(UIColor.systemBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
@@ -122,8 +109,7 @@ struct EnvironmentChoiceView: View {
                 .padding(.bottom, 20)
             }
             .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all))
-            
-            // BANNER DI ERRORE TEMPORANEO (TOAST)
+
             if showMaxSelectionError {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.circle.fill")
@@ -146,34 +132,33 @@ struct EnvironmentChoiceView: View {
     }
 }
 
-// MARK: - Componente per la cella
 struct SceneryGridCell: View {
     let title: String
     let imageName: String
     let isSelected: Bool
     let accentColor: Color
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottom) {
-                
+
                 Image(imageName)
                     .resizable()
                     .scaledToFill()
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .frame(height: 160)
                     .clipped()
-                
+
                 LinearGradient(gradient: Gradient(colors: [.clear, Color.black.opacity(0.7)]), startPoint: .center, endPoint: .bottom)
-                
+
                 Text(title)
                     .font(.headline)
                     .bold()
                     .foregroundColor(.white)
                     .padding(.bottom, 12)
                     .multilineTextAlignment(.center)
-                
+
                 if isSelected {
                     VStack {
                         HStack {

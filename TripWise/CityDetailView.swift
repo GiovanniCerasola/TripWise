@@ -1,41 +1,31 @@
-//
-//  CityDetailView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
 
 struct CityDetailView: View {
     let city: City
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
-    
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                
-                // 1. Immagine Copertina (Hero) limitata dal GeometryReader
+
                 ZStack(alignment: .bottomTrailing) {
                     GeometryReader { geometry in
                         Image(city.imageName)
                             .resizable()
                             .scaledToFill()
-                            // Forza l'immagine a non superare la larghezza dello schermo
                             .frame(width: geometry.size.width, height: 350)
                             .clipped()
                     }
-                    .frame(height: 350) // Serve per dare un'altezza fissa al GeometryReader
-                    
-                    // Gradiente sfumato in basso per staccare dal contenuto
+                    .frame(height: 350)
+
                     LinearGradient(
                         gradient: Gradient(colors: [.clear, Color(UIColor.systemBackground)]),
                         startPoint: .center,
                         endPoint: .bottom
                     )
                     .frame(height: 350)
-                    
-                    // Pulsante Wishlist sovrapposto alla foto
+
                     Button(action: {
                         viewModel.toggleWishlist(city: city)
                     }) {
@@ -48,20 +38,17 @@ struct CityDetailView: View {
                             .shadow(radius: 5)
                     }
                     .padding()
-                    .offset(y: 20) // Lo fa sbordare leggermente dall'immagine
+                    .offset(y: 20)
                 }
-                // Porta la copertina (e quindi il cuore) SOPRA il contenuto testuale:
-                // senza questo, lo sfondo del blocco sotto copriva la parte bassa del cuore
                 .zIndex(1)
-                
-                // 2. Contenuto Testuale (ora perfettamente allineato)
+
                 VStack(alignment: .leading, spacing: 15) {
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(city.name)
                             .font(.system(size: 34, weight: .bold))
                             .foregroundColor(.primary)
-                        
+
                         HStack {
                             Image(systemName: "mappin.and.ellipse")
                                 .foregroundColor(accentColor)
@@ -70,23 +57,22 @@ struct CityDetailView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                    
+
                     Divider()
                         .padding(.vertical, 5)
-                    
+
                     Text("Why should you visit?")
                         .font(.headline)
                         .foregroundColor(.primary)
-                    
+
                     Text(city.description)
                         .font(.body)
                         .foregroundColor(.secondary)
                         .lineSpacing(6)
-                    
+
                     Divider()
                         .padding(.vertical, 5)
-                    
-                    // TOGGLE "GIÀ VISITATA": se attivo, la città sparisce dal tab Destinations
+
                     Toggle(isOn: Binding(
                         get: { viewModel.isVisited(city: city) },
                         set: { newValue in

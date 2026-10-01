@@ -1,9 +1,3 @@
-//
-//  ContentView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import Foundation
 
 struct City: Identifiable, Equatable, Codable {
@@ -13,13 +7,10 @@ struct City: Identifiable, Equatable, Codable {
     let imageName: String
     var latitude: Double
     var longitude: Double
-    
+
     var description: String
-   
-    // BITMASK DEL PAESAGGIO:
-    // 1=Città, 2=Campagna, 4=Mare, 8=Montagna, 16=Lago, 32=Deserto, 64=Pianura, 128=Giungla
-    var sceneryBitmask: Int64 = 1 // Di default Città (1)
-    
+
+    var sceneryBitmask: Int64 = 1
 
     static func == (lhs: City, rhs: City) -> Bool {
         return lhs.name == rhs.name
@@ -223,19 +214,12 @@ let europeanCitiesData: [Int64: City] = [
     863: City(name: "Tenby", country: "United Kingdom", imageName: "tenby_pic", latitude: 51.6727, longitude: -4.6989, description: "Picturesque and colorful Welsh coastal village.", sceneryBitmask: 5)
 ]
 
-
-
-// MARK: - Città con punteggio di affinità
-/// Abbina una City al punteggio reale calcolato dal modello CoreML (0.0 - 1.0).
-/// Serve a portare la probabilità del modello fino alle card, così la percentuale
-/// mostrata è quella vera e non un numero finto derivato dalla posizione.
 struct ScoredCity: Identifiable, Codable, Equatable {
     let city: City
-    let score: Double            // probabilità che piaccia (rating = 1), fra 0.0 e 1.0
+    let score: Double
 
     var id: String { city.id }
 
-    /// Percentuale intera da mostrare in UI (es. 0.77 -> 77)
     var matchPercentage: Int {
         Int((score * 100).rounded())
     }

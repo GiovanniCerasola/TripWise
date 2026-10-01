@@ -1,22 +1,13 @@
-//
-//  IntroView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 25/09/2026.
-//
 import SwiftUI
 import AVKit
 
-import Combine      // ← aggiungi questa
+import Combine
 
-// MARK: - Schermata Iniziale
 struct IntroView: View {
     @ObservedObject var viewModel: TripViewModel
 
-    // Colore personalizzato #ff6a52
     let liquidColor = Color(red: 255/255, green: 106/255, blue: 82/255)
 
-    // Le 10 frasi che ruotano sotto il titolo (ciclo infinito)
     private let rotatingLines: [String] = [
         "Tell us your budget, dates and style — we'll do the rest.",
         "Swipe through places and let your taste guide the way.",
@@ -33,19 +24,16 @@ struct IntroView: View {
     @State private var lineIndex = 0
     @State private var goNext = false
 
-    // Timer che fa avanzare la frase ogni 3.5 secondi
     private let timer = Timer.publish(every: 3.5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // 1. Video globo in loop
                 LoopVideoPlayerView(videoName: "globe_video")
                     .scaleEffect(1.25)
                     .offset(y: -60)
                     .edgesIgnoringSafeArea(.all)
 
-                // 2. Sfumatura verso il nero nella parte bassa
                 LinearGradient(
                     stops: [
                         .init(color: .black.opacity(0.15), location: 0.0),
@@ -60,20 +48,18 @@ struct IntroView: View {
                 VStack(spacing: 0) {
                     Spacer()
 
-                    // 3. Titolo + frase che cambia gradualmente
                     VStack(alignment: .leading, spacing: 18) {
                         Text("Every journey starts with \na choice.")
                             .font(.system(size: 38, weight: .heavy))
                             .foregroundColor(.white)
                             .fixedSize(horizontal: false, vertical: true)
 
-                        // Frase rotante con dissolvenza
                         Text(rotatingLines[lineIndex])
                             .font(.body)
                             .foregroundColor(.white.opacity(0.78))
                             .lineSpacing(3)
                             .fixedSize(horizontal: false, vertical: true)
-                            .id(lineIndex) // forza la transizione a ogni cambio
+                            .id(lineIndex)
                             .transition(.opacity)
                             .frame(minHeight: 50, alignment: .top)
                     }
@@ -81,7 +67,6 @@ struct IntroView: View {
                     .padding(.horizontal, 28)
                     .frame(height: 200, alignment: .bottom)
 
-                    // 4. Bottone Liquid Glass
                     Button {
                         goNext = true
                     } label: {
@@ -118,7 +103,6 @@ struct IntroView: View {
                 TwoWayChoiceView(viewModel: viewModel)
             }
             .onReceive(timer) { _ in
-                // Avanza alla frase successiva, tornando a 0 dopo l'ultima
                 withAnimation(.easeInOut(duration: 0.6)) {
                     lineIndex = (lineIndex + 1) % rotatingLines.count
                 }
@@ -127,7 +111,6 @@ struct IntroView: View {
     }
 }
 
-// MARK: - Componente Video Player in Loop Perfetto (Senza Scatti)
 struct LoopVideoPlayerView: UIViewRepresentable {
     let videoName: String
 
@@ -171,7 +154,6 @@ class LoopingPlayerUIView: UIView {
     }
 }
 
-// MARK: - Anteprima
 #Preview {
     IntroView(viewModel: TripViewModel())
 }

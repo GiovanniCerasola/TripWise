@@ -1,11 +1,4 @@
-//
-//  OnboardingDots.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
-
 
 struct OnboardingDots: View {
     let currentStep: Int

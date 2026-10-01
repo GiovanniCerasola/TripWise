@@ -1,9 +1,3 @@
-//
-//  TwoWayChoiceView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
 import Combine
 
@@ -27,12 +21,11 @@ struct TwoWayChoiceView: View {
         SeasonItem(title: "Summer", icon: "sun.max.fill", subtitle: "Sun · Hot · Sea", imageName: "summer_pic", code: 2),
         SeasonItem(title: "Autumn", icon: "wind", subtitle: "Foliage · Colorful · Relax", imageName: "autumn_pic", code: 3)
     ]
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 0) {
-                
-                // Intestazione (colori adattivi chiaro/scuro)
+
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Choose the season")
                         .font(.system(size: 32, weight: .bold))
@@ -44,8 +37,7 @@ struct TwoWayChoiceView: View {
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .padding(.bottom, 15)
-                
-                // Lista delle card isolate per evitare refresh indesiderati della view principale
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 14) {
                         ForEach(seasons) { season in
@@ -54,7 +46,6 @@ struct TwoWayChoiceView: View {
                                 isSelected: viewModel.seasonCode == season.code,
                                 accentColor: accentColor
                             ) {
-                                // Aggiornamento di stato diretto, senza animazioni globali che fanno sfarfallare la UI
                                 viewModel.seasonCode = season.code
                             }
                         }
@@ -63,12 +54,11 @@ struct TwoWayChoiceView: View {
                     .padding(.bottom, 140)
                 }
             }
-            
-            // Blocco inferiore con il tasto Continua
+
             VStack(spacing: 12) {
-                
+
                 if viewModel.seasonCode >= 0 && viewModel.seasonCode <= 3 {
-                    
+
                     NavigationLink(destination: EnvironmentChoiceView(viewModel: viewModel)) {
                         Text("Next")
                             .font(.headline)
@@ -79,16 +69,15 @@ struct TwoWayChoiceView: View {
                             .cornerRadius(15)
                     }
                     .padding(.horizontal)
-                    
+
                 }
-                
+
                 OnboardingDots(currentStep: 0, totalSteps: 4)
                     .padding(8)
                     .background(Color(UIColor.systemBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
             }
             .padding(.bottom, 20)
             .background(
-                // Sfumatura adattiva: nera in dark mode, bianca in light mode
                 LinearGradient(
                     colors: [
                         .clear,
@@ -106,13 +95,12 @@ struct TwoWayChoiceView: View {
     }
 }
 
-// MARK: - Sotto-vista isolata per singola card (Elimina il refresh globale della schermata)
 struct SeasonCardRow: View {
     let season: SeasonItem
     let isSelected: Bool
     let accentColor: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
@@ -122,9 +110,7 @@ struct SeasonCardRow: View {
                     .frame(height: 120)
                     .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
-                
-                // Sfumatura scura sulla foto: resta nera in entrambi i temi
-                // così il testo bianco è sempre leggibile
+
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color.clear,
@@ -135,31 +121,30 @@ struct SeasonCardRow: View {
                     endPoint: .bottom
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 22))
-                
-                // Contenuto testuale (bianco perché sta sopra la foto)
+
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 8) {
                             Image(systemName: season.icon)
                                 .font(.system(size: 25, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.9))
-                            
+
                             Text(season.title)
                                 .font(.title2)
                                 .bold()
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
                         }
-                        
+
                         Text(season.subtitle)
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(Color.white.opacity(0.9))
                             .shadow(color: .black.opacity(0.9), radius: 2, x: 0, y: 1)
                     }
-                    
+
                     Spacer()
-                    
+
                     if isSelected {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 26))
@@ -172,7 +157,6 @@ struct SeasonCardRow: View {
                 .padding(.vertical, 14)
             }
             .overlay(
-                // Bordo adattivo: visibile sia su sfondo chiaro che scuro
                 RoundedRectangle(cornerRadius: 22)
                     .stroke(isSelected ? accentColor : Color.primary.opacity(0.1), lineWidth: isSelected ? 3 : 1)
             )

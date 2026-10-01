@@ -1,16 +1,9 @@
-//
-//  ProfileView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
-    
-    // Calcola l'archetipo una volta sola, combinando TUTTE le scelte dell'utente.
+
     private var archetype: Archetype {
         ArchetypeEngine.compute(
             experiences: viewModel.selectedExperiences,
@@ -21,23 +14,21 @@ struct ProfileView: View {
             popularityCode: viewModel.popularityCode
         )
     }
-    
+
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
-                    
-                    // 1. BLOCCO ARCHETIPO UNICO (icona + titolo + descrizione insieme)
+
                     VStack(alignment: .leading, spacing: 16) {
-                        
-                        // Riga superiore: icona + titolo
+
                         HStack(spacing: 15) {
                             Image(systemName: "building.2.crop.circle")
                                 .font(.system(size: 50))
                                 .foregroundColor(accentColor)
                                 .background(Color.primary.opacity(0.1))
                                 .clipShape(Circle())
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(archetype.title)
                                     .font(.title2)
@@ -49,10 +40,9 @@ struct ProfileView: View {
                             }
                             Spacer()
                         }
-                        
+
                         Divider()
-                        
-                        // Parte inferiore: sottotitolo + descrizione
+
                         VStack(alignment: .leading, spacing: 6) {
                             Text(archetype.subtitle)
                                 .font(.headline)
@@ -70,14 +60,13 @@ struct ProfileView: View {
                     .cornerRadius(18)
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    
-                    // 2. I TUOI GUSTI (Radar Chart dinamico basato sul ViewModel)
+
                     VStack(alignment: .leading, spacing: 15) {
                         Text("Your TripWisdom Spectrum")
                             .font(.headline)
                             .foregroundColor(.primary)
                             .padding(.horizontal)
-                        
+
                         RadarChart(
                             data: computeUserPreferencesData(),
                             accentColor: accentColor
@@ -89,8 +78,7 @@ struct ProfileView: View {
                     .background(Color(UIColor.secondarySystemBackground))
                     .cornerRadius(18)
                     .padding(.horizontal)
-                    
-                    // 3. CITTÀ GIÀ VISITATE (porta alla schermata di gestione)
+
                     NavigationLink(destination: VisitedCitiesView(viewModel: viewModel)) {
                         HStack(spacing: 15) {
                             Image(systemName: "checkmark.circle.fill")
@@ -99,7 +87,7 @@ struct ProfileView: View {
                                 .frame(width: 44, height: 44)
                                 .background(accentColor.opacity(0.15))
                                 .clipShape(Circle())
-                            
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Visited cities")
                                     .font(.headline)
@@ -108,9 +96,9 @@ struct ProfileView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
-                            
+
                             Spacer()
-                            
+
                             Image(systemName: "chevron.right")
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.secondary)
@@ -123,8 +111,7 @@ struct ProfileView: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal)
-                    
-                    // 4. TASTO AFFINA
+
                     Button(action: {
                         viewModel.hasStartedOnboarding = true
                         viewModel.hasFinishedOnboarding = false
@@ -140,7 +127,7 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    
+
                 }
                 .padding(.bottom, 35)
             }
@@ -148,8 +135,7 @@ struct ProfileView: View {
             .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all))
         }
     }
-    
-    // Sottotitolo della riga "Visited cities"
+
     private var visitedSubtitle: String {
         let count = viewModel.visitedCityNames.count
         switch count {
@@ -158,37 +144,36 @@ struct ProfileView: View {
         default: return "\(count) cities visited"
         }
     }
-    
-    // Calcola i 6 valori del grafico (0.0 - 1.0). Stringhe INGLESI coerenti coi dati salvati.
+
     private func computeUserPreferencesData() -> [Double] {
         let exp = viewModel.selectedExperiences
         let sceneries = viewModel.selectedSceneries
-        
+
         var relaxScore = 0.3
         if exp.contains("Beach") { relaxScore += 0.4 }
         if exp.contains("Nature") { relaxScore += 0.3 }
         if sceneries.contains("Sea") || sceneries.contains("Lake") { relaxScore += 0.2 }
-        
+
         var cultureScore = 0.3
         if exp.contains("Culture") { cultureScore += 0.4 }
         if exp.contains("History") { cultureScore += 0.4 }
         if sceneries.contains("City") { cultureScore += 0.2 }
-        
+
         var natureScore = 0.3
         if exp.contains("Nature") { natureScore += 0.4 }
         if sceneries.contains("Mountain") || sceneries.contains("Countryside") || sceneries.contains("Desert") { natureScore += 0.4 }
-        
+
         var foodScore = 0.3
         if exp.contains("Food") { foodScore += 0.6 }
-        
+
         var nightlifeScore = 0.2
         if exp.contains("Nightlife") { nightlifeScore += 0.7 }
-        
+
         var adventureScore = 0.3
         if exp.contains("Adventure") { adventureScore += 0.4 }
         if viewModel.activityLevelCode == 2 { adventureScore += 0.3 }
         if sceneries.contains("Mountain") { adventureScore += 0.2 }
-        
+
         return [
             min(max(relaxScore, 0.2), 1.0),
             min(max(cultureScore, 0.2), 1.0),
@@ -198,24 +183,23 @@ struct ProfileView: View {
             min(max(adventureScore, 0.2), 1.0)
         ]
     }
-    
-    // MARK: - RADAR CHART (GRAFICO CUSTOM ADATTIVO)
+
     struct RadarChart: View {
         var data: [Double]
         let labels = ["Relax", "Culture", "Nature", "Food", "Nightlife", "Adventure"]
         let accentColor: Color
-        
+
         var body: some View {
             GeometryReader { geometry in
                 let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 let radius = min(geometry.size.width, geometry.size.height) / 2 - 25
-                
+
                 ZStack {
                     ForEach(1...3, id: \.self) { step in
                         PolygonShape(sides: 6, scale: CGFloat(step) / 3.0)
                             .stroke(Color.primary.opacity(0.15), lineWidth: 1)
                     }
-                    
+
                     ForEach(0..<6, id: \.self) { i in
                         Path { path in
                             path.move(to: center)
@@ -226,19 +210,19 @@ struct ProfileView: View {
                         }
                         .stroke(Color.primary.opacity(0.15), lineWidth: 1)
                     }
-                    
+
                     DataPolygonShape(data: data)
                         .fill(accentColor.opacity(0.4))
-                    
+
                     DataPolygonShape(data: data)
                         .stroke(accentColor, lineWidth: 2)
-                    
+
                     ForEach(0..<6, id: \.self) { i in
                         let angle = CGFloat(i) * (2.0 * .pi / 6.0) - .pi / 2.0
                         let labelRadius = radius + 22
                         let x = center.x + labelRadius * cos(angle)
                         let y = center.y + labelRadius * sin(angle)
-                        
+
                         Text(labels[i])
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(.secondary)
@@ -248,16 +232,16 @@ struct ProfileView: View {
             }
         }
     }
-    
+
     struct PolygonShape: Shape {
         var sides: Int
         var scale: CGFloat
-        
+
         func path(in rect: CGRect) -> Path {
             var path = Path()
             let center = CGPoint(x: rect.width / 2, y: rect.height / 2)
             let radius = (min(rect.width, rect.height) / 2 - 25) * scale
-            
+
             for i in 0..<sides {
                 let angle = CGFloat(i) * (2.0 * .pi / CGFloat(sides)) - .pi / 2.0
                 let x = center.x + radius * cos(angle)
@@ -269,21 +253,21 @@ struct ProfileView: View {
             return path
         }
     }
-    
+
     struct DataPolygonShape: Shape {
         var data: [Double]
-        
+
         func path(in rect: CGRect) -> Path {
             var path = Path()
             let center = CGPoint(x: rect.width / 2, y: rect.height / 2)
             let radius = min(rect.width, rect.height) / 2 - 25
-            
+
             for (i, value) in data.enumerated() {
                 let angle = CGFloat(i) * (2.0 * .pi / CGFloat(data.count)) - .pi / 2.0
                 let normalizedValue = CGFloat(max(0, min(value, 1.0)))
                 let x = center.x + radius * normalizedValue * cos(angle)
                 let y = center.y + radius * normalizedValue * sin(angle)
-                
+
                 if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
                 else { path.addLine(to: CGPoint(x: x, y: y)) }
             }

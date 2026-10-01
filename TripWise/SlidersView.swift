@@ -1,55 +1,44 @@
-//
-//  ContentView.swift
-//  TripWise
-//
-//  Created by Samuel Antonio Mento on 22/09/2026.
-//
 import SwiftUI
 
 struct SlidersView: View {
     @ObservedObject var viewModel: TripViewModel
     let accentColor = Color(red: 1.0, green: 0.35, blue: 0.3)
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            
+
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
-                    
-                    // HEADER CON IMMAGINE (ASSET)
+
                     ZStack(alignment: .bottomLeading) {
-                        // Inserisci un'immagine nel tuo Assets chiamata "details_hero"
                         Image("details_hero")
                             .resizable()
                             .scaledToFill()
                             .frame(height: 220)
                             .frame(maxWidth: .infinity)
                             .clipShape(RoundedRectangle(cornerRadius: 0))
-                        
-                        // Gradiente per far leggere bene il testo
+
                         LinearGradient(
                             gradient: Gradient(colors: [.clear, Color(UIColor.systemBackground).opacity(0.8), Color(UIColor.systemBackground)]),
                             startPoint: .top,
                             endPoint: .bottom
                         )
                         .frame(height: 120)
-                        
+
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Last details")
                                 .font(.system(size: 34, weight: .heavy))
-                                .foregroundColor(.primary) // Colore adattivo
+                                .foregroundColor(.primary)
                             Text("Customize your budget and preferences")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary) // Colore adattivo
+                                .foregroundColor(.secondary)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                     }
-                    
-                    // BLOCCHI DELLE OPZIONI
+
                     VStack(spacing: 20) {
-                        
-                        // 1. BUDGET
+
                         PreferenceCard(
                             title: "Budget",
                             icon: "banknote",
@@ -66,8 +55,7 @@ struct SlidersView: View {
                                 accentColor: accentColor
                             )
                         }
-                        
-                        // 2. RITMO DI VIAGGIO
+
                         PreferenceCard(
                             title: "Pace of the trip",
                             icon: "figure.walk",
@@ -83,8 +71,7 @@ struct SlidersView: View {
                                 accentColor: accentColor
                             )
                         }
-                        
-                        // 3. POPOLARITÀ
+
                         PreferenceCard(
                             title: "Destination Popularity",
                             icon: "star.fill",
@@ -100,15 +87,14 @@ struct SlidersView: View {
                                 accentColor: accentColor
                             )
                         }
-                        
+
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 30) // Spazio per non far coprire l'ultimo elemento dal bottone
+                    .padding(.bottom, 30)
                 }
             }
             .edgesIgnoringSafeArea(.top)
-            
-            // BLOCCO INFERIORE (BOTTONE)
+
             VStack(spacing: 12) {
                 Button(action: {
                     withAnimation {
@@ -125,35 +111,32 @@ struct SlidersView: View {
                         .shadow(color: accentColor.opacity(0.4), radius: 10, x: 0, y: 5)
                 }
                 .padding(.horizontal)
-                
+
                 OnboardingDots(currentStep: 3, totalSteps: 4)
                     .padding(8)
                     .background(Color(UIColor.systemBackground).opacity(0.7), in: RoundedRectangle(cornerRadius: 15))
             }
             .padding(.bottom, 20)
             .padding(.top, 10)
-            .background(Color(UIColor.systemBackground)) // Adattivo
+            .background(Color(UIColor.systemBackground))
         }
-        .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all)) // Sfondo generale adattivo
+        .background(Color(UIColor.systemBackground).edgesIgnoringSafeArea(.all))
     }
 }
 
-// MARK: - Componenti UI Personalizzati
-
-// Card riutilizzabile per raggruppare le opzioni
 struct PreferenceCard<Content: View>: View {
     let title: String
     let icon: String
     let accentColor: Color
     let content: Content
-    
+
     init(title: String, icon: String, accentColor: Color, @ViewBuilder content: () -> Content) {
         self.title = title
         self.icon = icon
         self.accentColor = accentColor
         self.content = content()
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             HStack(spacing: 8) {
@@ -162,24 +145,23 @@ struct PreferenceCard<Content: View>: View {
                     .font(.title3)
                 Text(title)
                     .font(.headline)
-                    .foregroundColor(.primary) // Adattivo
+                    .foregroundColor(.primary)
             }
-            
+
             content
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(UIColor.secondarySystemBackground)) // Adattivo (leggermente staccato dal fondo)
+        .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(18)
     }
 }
 
-// Selettore a "pillole" moderno (sostituisce il vecchio Segmented Picker)
 struct CustomPillSelector: View {
     @Binding var selectedValue: Int64
     let options: [(label: String, value: Int64)]
     let accentColor: Color
-    
+
     var body: some View {
         HStack(spacing: 10) {
             ForEach(options, id: \.value) { option in
