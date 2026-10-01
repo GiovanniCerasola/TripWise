@@ -117,7 +117,6 @@ struct IntroView: View {
             .navigationDestination(isPresented: $goNext) {
                 TwoWayChoiceView(viewModel: viewModel)
             }
-            .preferredColorScheme(.dark)
             .onReceive(timer) { _ in
                 // Avanza alla frase successiva, tornando a 0 dopo l'ultima
                 withAnimation(.easeInOut(duration: 0.6)) {
