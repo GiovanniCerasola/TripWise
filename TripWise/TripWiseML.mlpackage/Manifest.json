@@ -1,0 +1,24 @@
+{
+    "fileFormatVersion": "1.0.0",
+    "itemInfoEntries": {
+        "4FDCD06F-1C27-4D3F-8471-449BBBA8618E": {
+            "author": "com.apple.CoreML",
+            "description": "CoreML Model Specification",
+            "name": "TripWiseML.mlmodel",
+            "path": "com.apple.CoreML/TripWiseML.mlmodel"
+        },
+        "C6144F5C-B408-4B56-BF41-61F68BE333DF": {
+            "author": "com.apple.CoreML",
+            "description": "External Metadata Overlay",
+            "name": "Metadata.json",
+            "path": "com.apple.CoreML/Metadata.json"
+        },
+        "ED6BB866-ED68-4390-80F9-1A9BDC15643E": {
+            "author": "com.apple.CoreML",
+            "description": "External FeatureDescription Overlay",
+            "name": "FeatureDescriptions.json",
+            "path": "com.apple.CoreML/FeatureDescriptions.json"
+        }
+    },
+    "rootModelIdentifier": "4FDCD06F-1C27-4D3F-8471-449BBBA8618E"
+}

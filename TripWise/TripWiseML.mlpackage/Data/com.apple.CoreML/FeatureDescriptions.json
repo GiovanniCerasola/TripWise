@@ -1,0 +1,48 @@
+{
+  "Inputs" : {
+    "form_g_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_j_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_r_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "destination_id" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_h_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_a_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_i_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_b_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_f_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "form_c_scalar" : {
+      "MLFeatureShortDescription" : "--"
+    }
+  },
+  "Outputs" : {
+    "ratingProbability" : {
+      "MLFeatureShortDescription" : "--"
+    },
+    "rating" : {
+      "MLFeatureShortDescription" : "--"
+    }
+  },
+  "TrainingInputs" : {
+
+  },
+  "States" : {
+
+  }
+}
