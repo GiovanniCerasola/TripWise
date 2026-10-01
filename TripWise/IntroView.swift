@@ -50,7 +50,7 @@ struct IntroView: View {
                     stops: [
                         .init(color: .black.opacity(0.15), location: 0.0),
                         .init(color: .black.opacity(0.0), location: 0.45),
-                        .init(color: .black, location: 0.92)
+                        .init(color: .black, location: 0.82)
                     ],
                     startPoint: .top,
                     endPoint: .bottom

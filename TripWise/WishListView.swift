@@ -100,8 +100,25 @@ struct WishlistView: View {
                     // --- MODALITÀ MAPPA INTERATTIVA ---
                     ZStack(alignment: .bottom) {
                         Map(position: $cameraPosition) {
-                            UserAnnotation()
                             
+                            // Marcatore AZZURRO della posizione utente (personalizzato)
+                            if let userLoc = locationManager.userLocation {
+                                Annotation("You", coordinate: userLoc) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.blue.opacity(0.25))
+                                            .frame(width: 34, height: 34)
+                                        Circle()
+                                            .fill(Color.blue)
+                                            .frame(width: 18, height: 18)
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 3)
+                                            .frame(width: 18, height: 18)
+                                    }
+                                }
+                            }
+                            
+                            // Pin ARANCIONI delle città in wishlist
                             ForEach(viewModel.wishlist) { city in
                                 Annotation(city.name, coordinate: CLLocationCoordinate2D(latitude: city.latitude, longitude: city.longitude)) {
                                     Button(action: {
@@ -110,7 +127,7 @@ struct WishlistView: View {
                                         VStack(spacing: 2) {
                                             Image(systemName: "mappin.circle.fill")
                                                 .font(.system(size: 32))
-                                                .foregroundColor(.black)
+                                                .foregroundColor(accentColor)
                                                 .background(Circle().fill(Color(UIColor.systemBackground)))
                                                 .shadow(radius: 4)
                                             
