@@ -110,7 +110,7 @@ struct WishlistView: View {
                                         VStack(spacing: 2) {
                                             Image(systemName: "mappin.circle.fill")
                                                 .font(.system(size: 32))
-                                                .foregroundColor(accentColor)
+                                                .foregroundColor(.black)
                                                 .background(Circle().fill(Color(UIColor.systemBackground)))
                                                 .shadow(radius: 4)
                                             
